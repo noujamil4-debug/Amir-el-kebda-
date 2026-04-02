@@ -3,87 +3,107 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة التحكم - أمير الكبدة</title>
+    <title>لوحة التحكم | AMIR STAFF</title>
+    <!-- استدعاء Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700&display=swap" rel="stylesheet">
+    
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f4; padding: 20px; }
-        .order-card { background: white; border-radius: 8px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border-right: 5px solid #e67e22; }
-        .order-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-        .item-name { font-size: 1.2rem; font-weight: bold; color: #2c3e50; }
-        .harissa-tag { color: #e74c3c; font-weight: bold; background: #fdeaea; padding: 2px 8px; border-radius: 4px; margin-right: 10px; border: 1px solid #e74c3c; }
-        .details { margin-top: 10px; color: #7f8c8d; }
-        .status-btn { background: #27ae60; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; }
+        body { background: #0f1218; color: white; font-family: 'Cairo', sans-serif; padding: 20px; margin: 0; }
+        header { background: #161b22; padding: 15px; border-bottom: 2px solid #d4af37; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; }
+        .btn-bell { background: #d4af37; color: black; padding: 10px 20px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        
+        #list { margin-top: 20px; }
+        .card { background: #1a1e26; border-radius: 15px; padding: 20px; margin-bottom: 20px; border-right: 8px solid #d4af37; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        
+        /* تنسيق اسم الطلب */
+        .order-row { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; margin-bottom: 15px; }
+        .order-name { font-size: 1.6rem; color: #ffffff; }
+        
+        /* تنسيق علامة الهريسة */
+        .harissa-badge { background: #f85149; color: white; padding: 4px 12px; border-radius: 6px; font-size: 1.1rem; font-weight: bold; animation: blinker 1.5s linear infinite; }
+        @keyframes blinker { 50% { opacity: 0.5; } }
+
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; color: #8b949e; border-top: 1px solid #30363d; pt: 10px; margin-top: 10px; }
+        .btn-done { width: 100%; margin-top: 20px; background: #238636; color: white; border: none; padding: 15px; cursor: pointer; font-weight: bold; border-radius: 8px; font-size: 1.1rem; }
+        .btn-done:hover { background: #2ea043; }
     </style>
 </head>
 <body>
 
-    <h1>الطلبات الواردة 🍟</h1>
-    <div id="orders-container">
-        <!-- الطلبات ستظهر هنا -->
-        جاري تحميل الطلبات...
+    <!-- صوت الجرس -->
+    <audio id="bell" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
+
+    <header>
+        <button class="btn-bell" onclick="document.getElementById('bell').play().then(()=>document.getElementById('bell').pause())">تفعيل الجرس 🔔</button>
+        <h2 style="color:#f85149">AMIR STAFF</h2>
+    </header>
+
+    <div id="list">
+        <!-- تظهر الطلبات هنا -->
     </div>
 
-    <!-- تأكد من وضع إعدادات Firebase الخاصة بك هنا -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
     <script>
-        // ضع إعدادات مشروعك هنا (نفس التي في صفحة الطلب)
-        const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_PROJECT.firebaseapp.com",
-            databaseURL: "YOUR_DATABASE_URL",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_PROJECT.appspot.com",
-            messagingSenderId: "YOUR_ID",
-            appId: "YOUR_APP_ID"
+        // إعدادات Firebase الخاصة بك
+        const config = {
+            apiKey: "AIzaSyA--0uPh05hIG_zN_Yc",
+            databaseURL: "https://amir-el-kebda-default-rtdb.europe-west1.firebasedatabase.app/",
+            projectId: "amir-el-kebda"
         };
-        
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
+        firebase.initializeApp(config);
+        const db = firebase.database();
 
-        // جلب الطلبات
-        const ordersRef = database.ref('orders');
-        ordersRef.on('value', (snapshot) => {
-            const container = document.getElementById('orders-container');
-            container.innerHTML = ""; // مسح القائمة الحالية
-            
-            snapshot.forEach((childSnapshot) => {
-                const order = childSnapshot.val();
-                const orderId = childSnapshot.key;
+        // الاستماع للطلبات الجديدة
+        db.ref('orders').on('child_added', (snap) => {
+            // تشغيل الجرس عند وصول طلب جديد
+            document.getElementById('bell').play().catch(()=>{});
 
-                // --- الجزء الذي طلبته ---
-                // فحص إذا كانت الهريسة موجودة في مصفوفة الإضافات أو النص
-                let harissaMarkup = "";
-                if (order.extras && (order.extras.includes("هريسة") || JSON.stringify(order.extras).includes("هريسة"))) {
-                    harissaMarkup = '<span class="harissa-tag">+ هريسة 🌶️</span>';
-                }
-                // -----------------------
+            const d = snap.val();
+            const orderId = snap.key;
 
-                const orderHtml = `
-                    <div class="order-card" id="order-${orderId}">
-                        <div class="order-header">
-                            <div>
-                                <span class="item-name">${order.itemName || order.title}</span>
-                                ${harissaMarkup} 
-                            </div>
-                            <span>طاولة: ${order.tableNumber || 'سفري'}</span>
-                        </div>
-                        <div class="details">
-                            <p>العدد: ${order.quantity || 1}</p>
-                            <p>ملاحظات أخرى: ${order.notes || 'لا يوجد'}</p>
-                        </div>
-                        <button class="status-btn" onclick="completeOrder('${orderId}')">تم التحضير</button>
-                    </div>
-                `;
-                container.innerHTML += orderHtml;
-            });
+            // 1. تحديد اسم الطلب (الوجبة)
+            const foodName = d.order || d.food || d.itemName || "طلب غير معروف";
+
+            // 2. فحص هل يوجد "هريسة" في الإضافات
+            // يبحث في الحقول المحتملة: extras أو additions أو note
+            let harissaTag = "";
+            const details = (d.extras + d.additions + d.notes + d.order).toLowerCase();
+            if (details.includes("هريسة")) {
+                harissaTag = `<span class="harissa-badge">🌶️ مع هريسة</span>`;
+            }
+
+            const card = `
+            <div class="card" id="card-${orderId}">
+                <div class="order-row">
+                    <span class="order-name">${foodName}</span>
+                    ${harissaTag}
+                </div>
+                
+                <div class="info-grid">
+                    <div>👤 الزبون: ${d.name || 'غير معروف'}</div>
+                    <div>📱 الهاتف: ${d.phone || 'بدون رقم'}</div>
+                    <div>📍 المدينة: ${d.city || 'غير محددة'}</div>
+                    <div>🏠 العنوان: ${d.address || 'لا يوجد'}</div>
+                </div>
+
+                ${d.notes ? `<p style="color:#d4af37; margin-top:10px;">📝 ملاحظة: ${d.notes}</p>` : ''}
+
+                <button class="btn-done" onclick="completeOrder('${orderId}')">تم التجهيز ✓</button>
+            </div>`;
+
+            document.getElementById('list').insertAdjacentHTML('afterbegin', card);
         });
 
+        // وظيفة مسح الطلب عند الانتهاء
         function completeOrder(id) {
-            if(confirm("هل تم تسليم الطلب؟")) {
-                database.ref('orders/' + id).remove(); // حذف الطلب بعد الانتهاء
+            if(confirm("هل تريد إزالة هذا الطلب؟")) {
+                // يمكنك تفعيل السطر التالي لحذفه من قاعدة البيانات أيضاً:
+                // firebase.database().ref('orders/' + id).remove();
+                document.getElementById('card-' + id).style.display = 'none';
             }
         }
     </script>
+
 </body>
 </html>
