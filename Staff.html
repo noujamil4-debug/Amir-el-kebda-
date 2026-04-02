@@ -6,28 +6,29 @@
     <title>لوحة التحكم | AMIR STAFF</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&display=swap" rel="stylesheet">
     <style>
         body { background: #0a0a0a; color: white; font-family: 'Cairo', sans-serif; padding: 15px; margin: 0; }
         header { background: #161b22; padding: 15px; border-bottom: 2px solid #d4af37; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; border-radius: 0 0 15px 15px; }
         .btn-bell { background: #d4af37; color: black; padding: 10px 20px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
         
         #list { margin-top: 20px; }
-        .card { background: #161b22; border-radius: 20px; padding: 20px; margin-bottom: 20px; border: 1px solid #333; border-right: 8px solid #d4af37; position: relative; }
+        .card { background: #161b22; border-radius: 20px; padding: 20px; margin-bottom: 20px; border: 1px solid #333; border-right: 8px solid #d4af37; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         
-        /* تنسيق اسم الطلب */
-        .order-title { font-size: 1.6rem; color: #fff; font-weight: 900; margin-bottom: 10px; display: block; }
+        /* تنسيق اسم الطلب المعدل */
+        .order-title { font-size: 1.5rem; color: #fff; font-weight: 900; margin-bottom: 10px; display: block; line-height: 1.4; }
+        .type-prefix { color: #d4af37; text-transform: uppercase; margin-left: 5px; font-size: 1.1rem; }
         
-        /* تنسيق الهريسة المميز */
-        .harissa-highlight { color: #ff4500; background: rgba(255, 69, 0, 0.1); padding: 2px 10px; border-radius: 8px; border: 1px solid #ff4500; font-size: 1.2rem; animation: blink 1s infinite; margin-right: 10px; }
-        @keyframes blink { 50% { opacity: 0.4; } }
+        /* تنسيق الهريسة */
+        .harissa-badge { display: inline-block; background: #ff4500; color: white; padding: 2px 12px; border-radius: 10px; font-size: 1.1rem; font-weight: bold; animation: pulse 1s infinite; margin-top: 5px; }
+        @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.05); opacity: 0.7; } 100% { transform: scale(1); opacity: 1; } }
 
-        .info { color: #8b949e; font-size: 1rem; margin-top: 10px; line-height: 1.8; }
-        .info b { color: #d4af37; }
+        .info { color: #8b949e; font-size: 1rem; margin-top: 12px; border-top: 1px solid #222; padding-top: 12px; }
+        .info b { color: #eee; }
+        .gps-link { display: inline-block; margin-top: 10px; color: #4285F4; text-decoration: none; font-weight: bold; background: rgba(66, 133, 244, 0.1); padding: 5px 10px; border-radius: 5px; }
 
-        .gps-link { display: inline-block; margin-top: 10px; color: #4285F4; text-decoration: none; font-weight: bold; }
-
-        .btn-done { width: 100%; margin-top: 20px; background: #238636; color: white; border: none; padding: 15px; cursor: pointer; font-weight: bold; border-radius: 12px; font-size: 1.1rem; }
+        .btn-done { width: 100%; margin-top: 20px; background: #238636; color: white; border: none; padding: 15px; cursor: pointer; font-weight: bold; border-radius: 12px; font-size: 1.2rem; transition: 0.3s; }
+        .btn-done:active { background: #1a6328; transform: scale(0.98); }
     </style>
 </head>
 <body>
@@ -36,11 +37,11 @@
 
     <header>
         <button class="btn-bell" onclick="document.getElementById('bell').play().then(()=>document.getElementById('bell').pause())">تفعيل الجرس 🔔</button>
-        <h2 style="color:#f85149; margin:0;">AMIR STAFF</h2>
+        <h2 style="color:#f85149; margin:0; font-family:'Montserrat', sans-serif;">AMIR STAFF</h2>
     </header>
 
     <div id="list">
-        <center style="margin-top: 50px; color: #444;">جاري انتظار الطلبات الجديدة...</center>
+        <center style="margin-top: 50px; color: #444;">جاري انتظار الطلبات...</center>
     </div>
 
     <script>
@@ -52,13 +53,12 @@
         firebase.initializeApp(config);
         const db = firebase.database();
 
-        // الاستماع للطلبات
         db.ref('orders').on('value', (snapshot) => {
             const listDiv = document.getElementById('list');
             listDiv.innerHTML = ""; 
 
             if (!snapshot.exists()) {
-                listDiv.innerHTML = "<center style='margin-top:50px;'>لا توجد طلبات حالياً</center>";
+                listDiv.innerHTML = "<center style='margin-top:50px; color:#555;'>لا توجد طلبات نشطة</center>";
                 return;
             }
 
@@ -66,21 +66,37 @@
                 const d = child.val();
                 const id = child.key;
 
-                // معالجة النص لعزل "الهريسة" وتلوينها
-                let displayItem = d.item || "طلب غير معروف";
-                if (displayItem.includes("هريسة")) {
-                    displayItem = displayItem.replace(" + هريسة 🌶️", "") + ' <span class="harissa-highlight">🌶️ مع هريسة</span>';
+                let fullItemText = d.item || "";
+                let hasHarissa = fullItemText.includes("هريسة");
+                
+                // تنظيف الاسم من كلمة هريسة ومن الإيموجي للمقارنة
+                let coreName = fullItemText.replace(" + هريسة 🌶️", "").trim();
+                
+                let finalTitle = "";
+
+                // --- منطق إضافة Sandwich أو Plat تلقائياً ---
+                if (coreName.toLowerCase().includes("plat")) {
+                    // إذا كان الاسم يحتوي أصلاً على Plat (مثل Plat Kebda)
+                    finalTitle = `<span class="type-prefix">PLAT</span> ${coreName.replace(/Plat/i, "").trim()}`;
+                } 
+                else if (coreName.includes("Boisson") || coreName.includes("Canette") || coreName.includes("L'eau")) {
+                    // إذا كان مشروب، نتركه كما هو
+                    finalTitle = coreName;
+                } 
+                else {
+                    // أي شيء آخر نعتبره Sandwich (مثل Merguez, Kebda Veau...)
+                    finalTitle = `<span class="type-prefix">SANDWICH</span> ${coreName}`;
                 }
 
                 const card = `
                 <div class="card" id="card-${id}">
-                    <span class="order-title">${displayItem}</span>
+                    <span class="order-title">${finalTitle}</span>
+                    ${hasHarissa ? '<div class="harissa-badge">🌶️ مع هريسة</div>' : ''}
                     
                     <div class="info">
-                        👤 الزبون: <b>${d.name}</b><br>
-                        📱 الهاتف: <b>${d.phone}</b><br>
+                        👤 الزبون: <b>${d.name}</b> | 📱 الهاتف: <b>${d.phone}</b><br>
                         📍 المنطقة: <b>${d.city}</b><br>
-                        ${d.location !== "غير محدد" ? `<a href="${d.location}" target="_blank" class="gps-link">📍 فتح الموقع على الخريطة</a>` : ""}
+                        ${d.location !== "غير محدد" ? `<a href="${d.location}" target="_blank" class="gps-link">📍 فتح موقع الزبون GPS</a>` : ""}
                     </div>
 
                     <button class="btn-done" onclick="completeOrder('${id}')">تم التجهيز ✓</button>
@@ -89,12 +105,11 @@
                 listDiv.insertAdjacentHTML('afterbegin', card);
             });
 
-            // تنبيه صوتي عند حدوث أي تغيير (طلب جديد)
             document.getElementById('bell').play().catch(()=>{});
         });
 
         function completeOrder(id) {
-            if(confirm("هل تم تجهيز هذا الطلب؟")) {
+            if(confirm("هل تريد إزالة هذا الطلب؟")) {
                 db.ref('orders/' + id).remove();
             }
         }
