@@ -3,243 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة تحكم أمير الكبدة | AMIR STAFF</title>
-    <!-- خطوط وأيقونات احترافية -->
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
-    <!-- روابط فيربيز (Firebase) الحقيقية -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
+    <title>Dashboard | AMIR STAFF</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg-dark: #0d1117;
-            --gold: #d4af37;
-            --card-bg: #161b22;
-            --red-alert: #f85149;
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
-        
-        body { background-color: var(--bg-dark); color: white; min-height: 100vh; overflow-x: hidden; }
-
-        /* الهيدر العلوي */
-        header {
-            background-color: var(--card-bg);
-            padding: 15px 5%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid var(--gold);
-            position: sticky;
-            top: 0; z-index: 1000;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-        }
-
-        .header-title { color: var(--red-alert); font-weight: 900; font-size: 1.4rem; letter-spacing: 1px; }
-
-        /* زر الجرس الأنيق */
-        .bell-box {
-            background-color: var(--gold);
-            color: black;
-            border: none;
-            padding: 10px 25px;
-            border-radius: 12px;
-            font-weight: 900;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            transition: 0.3s;
-            box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
-        }
-
-        .bell-box.active { background-color: #333; color: #777; box-shadow: none; }
-
-        /* منطقة الطلبات */
-        .container { padding: 40px 5%; }
-        
-        .dashboard-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-        }
-
-        .orders-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 25px;
-        }
-
-        /* بطاقة الطلب (Order Card) */
-        .order-card {
-            background-color: var(--card-bg);
-            border-radius: 20px;
-            padding: 25px;
-            border-right: 10px solid var(--gold);
-            position: relative;
-            animation: slideIn 0.5s ease-out;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-            border: 1px solid #30363d;
-        }
-
-        @keyframes slideIn {
-            from { transform: translateX(50px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-
-        .order-id { color: var(--gold); font-weight: 900; font-size: 1.2rem; margin-bottom: 15px; display: block; }
-        .order-info { margin-bottom: 10px; color: #c9d1d9; font-size: 1rem; }
-        .order-info i { color: var(--gold); width: 25px; }
-
-        /* زر الخريطة GPS */
-        .gps-link {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            background: #1f2937;
-            color: #58a6ff;
-            text-decoration: none;
-            padding: 12px;
-            border-radius: 10px;
-            margin-top: 20px;
-            font-weight: bold;
-            border: 1px solid #30363d;
-            transition: 0.3s;
-        }
-
-        .gps-link:hover { background: #58a6ff; color: white; }
-
-        /* زر تم التجهيز */
-        .done-btn {
-            background-color: var(--gold);
-            color: black;
-            border: none;
-            padding: 15px;
-            width: 100%;
-            border-radius: 12px;
-            font-weight: 900;
-            margin-top: 15px;
-            cursor: pointer;
-            font-size: 1.1rem;
-            transition: 0.3s;
-        }
-
-        .done-btn:hover { background-color: white; transform: scale(1.02); }
-
-        .no-orders { text-align: center; color: #484f58; margin-top: 100px; font-size: 1.3rem; grid-column: 1/-1; }
+        body { background: #0f1218; color: white; font-family: 'Cairo', sans-serif; padding: 20px; }
+        header { background: #161b22; padding: 15px; border-bottom: 2px solid #d4af37; display: flex; justify-content: space-between; align-items: center; }
+        .order-card { background: #1a1e26; border-radius: 15px; padding: 20px; margin-top: 20px; border-right: 8px solid #d4af37; }
+        .btn-bell { background: #d4af37; padding: 10px 20px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
-
-    <!-- صوت جرس المطبخ الحقيقي -->
-    <audio id="orderAlert" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
-
+    <audio id="bellSound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3"></audio>
     <header>
-        <button id="bellBtn" class="bell-box" onclick="initAudio()">
-            <i class="fas fa-bell"></i> تفعيل نظام الجرس
-        </button>
-        <div class="header-title">AMIR STAFF</div>
+        <button class="btn-bell" onclick="document.getElementById('bellSound').play().then(()=>document.getElementById('bellSound').pause())">تفعيل الجرس 🔔</button>
+        <h2 style="color:#f85149">AMIR STAFF</h2>
     </header>
-
-    <div class="container">
-        <div class="dashboard-header">
-            <h2 style="border-right: 4px solid var(--gold); padding-right: 15px;">الطلبات الحالية</h2>
-            <div id="orderCount" style="background: var(--gold); color:black; padding:5px 15px; border-radius:20px; font-weight:900;">0 طلبات</div>
-        </div>
-
-        <div id="ordersContainer" class="orders-grid">
-            <p id="emptyMsg" class="no-orders">لا توجد طلبات جديدة حالياً.. الموقع جاهز للعمل ✅</p>
-        </div>
-    </div>
+    <div id="list"></div>
 
     <script>
-        // --- إعدادات فيربيز الخاصة بك (دقيقة 100%) ---
-        const firebaseConfig = {
+        const config = {
             apiKey: "AIzaSyA--0uPh05hIG_zN_Yc",
-            authDomain: "amir-el-kebda.firebaseapp.com",
             databaseURL: "https://amir-el-kebda-default-rtdb.firebaseio.com",
-            projectId: "amir-el-kebda",
-            storageBucket: "amir-el-kebda.appspot.com",
-            messagingSenderId: "148680741165",
-            appId: "1:148680741165:web:9fb3b15afafbf114b583a4"
+            projectId: "amir-el-kebda"
         };
-
-        // تشغيل فيربيز
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
-
-        let count = 0;
-
-        // وظيفة تفعيل الصوت (ضرورية جداً للمتصفحات)
-        function initAudio() {
-            const audio = document.getElementById('orderAlert');
-            audio.play().then(() => {
-                audio.pause();
-                document.getElementById('bellBtn').innerHTML = "<i class='fas fa-check-circle'></i> الجرس يعمل تلقائياً";
-                document.getElementById('bellBtn').classList.add('active');
-                document.getElementById('bellBtn').onclick = null;
-                alert("تم تفعيل نظام التنبيه! الجرس سيرن فور وصول أي طلب.");
-            });
-        }
-
-        // الاستماع الفوري للطلبات الجديدة في السحابة
-        database.ref('orders').on('child_added', (snapshot) => {
-            const order = snapshot.val();
-            const orderKey = snapshot.key;
-
-            // إزالة رسالة "لا توجد طلبات"
-            if(document.getElementById('emptyMsg')) document.getElementById('emptyMsg').remove();
-
-            // رن الجرس
-            const audio = document.getElementById('orderAlert');
-            audio.play();
-
-            // تحديث العدد
-            count++;
-            document.getElementById('orderCount').innerText = count + " طلبات";
-
-            // إنشاء بطاقة الطلب
-            const container = document.getElementById('ordersContainer');
-            const card = document.createElement('div');
-            card.className = 'order-card';
-            card.id = orderKey;
-            
-            // رابط الـ GPS
-            const gpsLink = (order.location && order.location !== "غير محدد") 
-                ? `<a href="${order.location}" target="_blank" class="gps-link"><i class="fas fa-map-marker-alt"></i> تحديد موقع الزبون GPS</a>`
-                : `<p class="order-info" style="color:#666; margin-top:20px; text-align:center;">الموقع غير محدد</p>`;
-
-            card.innerHTML = `
-                <span class="order-id">طلب جديد #${Math.floor(Math.random()*900)+100}</span>
-                <p class="order-info"><i class="fas fa-user"></i> <b>الاسم:</b> ${order.name}</p>
-                <p class="order-info"><i class="fas fa-phone"></i> <b>الهاتف:</b> ${order.phone}</p>
-                <p class="order-info"><i class="fas fa-city"></i> <b>البلدية:</b> ${order.city}</p>
-                <p class="order-info"><i class="fas fa-hamburger"></i> <b>الطلب:</b> ${order.item}</p>
-                
-                ${gpsLink}
-
-                <button class="done-btn" onclick="finishOrder('${orderKey}')">تم التجهيز ✓</button>
-            `;
-            container.prepend(card); // وضع أحدث طلب في الأعلى
+        firebase.initializeApp(config);
+        firebase.database().ref('orders').on('child_added', (snap) => {
+            document.getElementById('bellSound').play();
+            const d = snap.val();
+            const card = `<div class="order-card">
+                <h3>طلب جديد 🥙</h3>
+                <p>الزبون: ${d.name} | الهاتف: ${d.phone}</p>
+                <p>البلدية: ${d.city}</p>
+                <a href="${d.location}" target="_blank" style="color:#4285F4">📍 موقع GPS</a>
+                <button style="width:100%; margin-top:10px; background:#d4af37; border:none; padding:10px; cursor:pointer;" onclick="this.parentElement.remove()">تم التجهيز ✓</button>
+            </div>`;
+            document.getElementById('list').insertAdjacentHTML('afterbegin', card);
         });
-
-        // وظيفة حذف الطلب بعد التجهيز
-        window.finishOrder = function(key) {
-            if(confirm("هل تم تجهيز الطلب وتسليمه؟")) {
-                database.ref('orders/' + key).remove().then(() => {
-                    document.getElementById(key).style.opacity = "0";
-                    setTimeout(() => {
-                        document.getElementById(key).remove();
-                        count--;
-                        document.getElementById('orderCount').innerText = count + " طلبات";
-                    }, 500);
-                });
-            }
-        }
     </script>
 </body>
 </html>
