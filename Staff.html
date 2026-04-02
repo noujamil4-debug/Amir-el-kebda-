@@ -7,42 +7,42 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700&display=swap" rel="stylesheet">
     <style>
-        body { background: #0f1218; color: white; font-family: 'Cairo'; padding: 20px; }
-        header { background: #161b22; padding: 15px; border-bottom: 2px solid #d4af37; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; }
+        body { background: #0f1218; color: white; font-family: 'Cairo', sans-serif; padding: 20px; }
+        header { background: #161b22; padding: 15px; border-bottom: 2px solid #d4af37; display: flex; justify-content: space-between; align-items: center; }
         .order-card { background: #1a1e26; border-radius: 15px; padding: 20px; margin-top: 20px; border-right: 8px solid #d4af37; animation: slideIn 0.5s ease; }
         @keyframes slideIn { from { transform: translateX(50px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        .btn-bell { background: #d4af37; color: black; padding: 10px 20px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .btn-bell { background: #d4af37; padding: 10px 20px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
-    <audio id="bell" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
+    <audio id="bellSound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
     <header>
-        <button class="btn-bell" onclick="document.getElementById('bell').play().then(()=>document.getElementById('bell').pause())">تفعيل الجرس 🔔</button>
+        <button class="btn-bell" onclick="document.getElementById('bellSound').play().then(()=>document.getElementById('bellSound').pause())">تفعيل الجرس 🔔</button>
         <h2 style="color:#f85149">AMIR STAFF</h2>
     </header>
-    <div id="list"></div>
+    <div id="ordersList"></div>
 
     <script>
         const config = {
-            apiKey: "AIzaSyA--0uPh05hI9zNbk_YcIG_zN_Yc",
+            apiKey: "AIzaSyA--0uPh05hIG_zN_Yc",
             databaseURL: "https://amir-el-kebda-default-rtdb.firebaseio.com",
             projectId: "amir-el-kebda"
         };
         firebase.initializeApp(config);
+        const database = firebase.database();
         
-        firebase.database().ref('orders').on('child_added', (snap) => {
-            const sound = document.getElementById('bell');
-            sound.play().catch(()=>{}); // محاولة تشغيل الجرس
+        database.ref('orders').on('child_added', (snap) => {
+            const sound = document.getElementById('bellSound');
+            sound.play().catch(() => {});
             
             const d = snap.val();
             const card = `<div class="order-card">
-                <h3>طلب جديد #${Math.floor(Math.random()*900)+100}</h3>
-                <p><b>الزبون:</b> ${d.name} | <b>الهاتف:</b> ${d.phone}</p>
-                <p><b>البلدية:</b> ${d.city} | <b>الطلب:</b> ${d.item}</p>
-                <a href="${d.location}" target="_blank" style="color:#4285F4; text-decoration:none; display:block; margin:10px 0;">📍 فتح موقع الزبون GPS</a>
-                <button style="width:100%; background:#d4af37; border:none; padding:10px; border-radius:5px; cursor:pointer; font-weight:bold;" onclick="this.parentElement.remove()">تم التجهيز ✓</button>
+                <h3>طلب جديد 🥙</h3>
+                <p>الزبون: ${d.name} | الهاتف: ${d.phone}</p>
+                <p>البلدية: ${d.city}</p>
+                <button style="width:100%; margin-top:10px; background:#d4af37; border:none; padding:10px; border-radius:5px; cursor:pointer; font-weight:bold;" onclick="this.parentElement.remove()">تم التجهيز ✓</button>
             </div>`;
-            document.getElementById('list').insertAdjacentHTML('afterbegin', card);
+            document.getElementById('ordersList').insertAdjacentHTML('afterbegin', card);
         });
     </script>
 </body>
