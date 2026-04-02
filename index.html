@@ -3,106 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Amir el Kebda | Le Menu</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;600;900&family=Montserrat:wght@900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
-    <!-- مكتبات فيربيز (Firebase) - النسخة المستقرة -->
+    <title>Amir el Kebda</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-
     <style>
-        :root { --gold: #d4af37; --black: #0a0a0a; --blue: #4285F4; }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background-color: var(--black); font-family: 'Cairo', sans-serif; color: white; overflow-x: hidden; }
-        #home-view { height: 100vh; width: 100%; display: flex; justify-content: center; align-items: center; position: relative; background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://i.postimg.cc/3RSC6ZW9/doner-tendir-du-poulet-table-140725-2443.jpg') center/cover; }
-        .logo-circle { width: 140px; height: 140px; border-radius: 50%; border: 3px solid var(--gold); margin-bottom: 20px; object-fit: cover; box-shadow: 0 0 20px var(--gold); }
-        .btn-lemenu { background: none; border: 2px solid var(--gold); color: var(--gold); padding: 15px 60px; font-size: 1.4rem; border-radius: 50px; cursor: pointer; font-weight: 700; transition: 0.4s; }
-        .btn-lemenu:hover { background: var(--gold); color: black; }
-        #menu-view { display: none; padding: 40px 20px; min-height: 100vh; }
-        .cat-card { aspect-ratio: 1/1; border-radius: 30px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1.6rem; cursor: pointer; border: 1px solid var(--gold); background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://i.postimg.cc/xdK9tsxZ/Adobe-Stock-495664482-jpeg-(1).webp') center/cover; }
-        #orderModal { display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 2000; padding: 20px; }
-        .form-box { max-width: 400px; margin: 20px auto; background: #000; padding: 25px; border-radius: 30px; border: 1px solid var(--gold); text-align: center; direction: rtl; }
-        input, select { width: 100%; padding: 15px; margin-bottom: 10px; border-radius: 12px; background: #111; color: white; border: 1px solid #333; font-family: 'Cairo'; }
-        .gps-btn { width: 100%; padding: 12px; background: var(--blue); color: white; border: none; border-radius: 10px; margin-bottom: 15px; cursor: pointer; }
-        .submit-btn { width: 100%; padding: 18px; background: var(--gold); color: black; border: none; border-radius: 50px; font-weight: 900; font-size: 1.4rem; cursor: pointer; }
+        body { background: #0a0a0a; color: gold; font-family: sans-serif; text-align: center; padding: 50px; }
+        input, select { width: 80%; padding: 15px; margin: 10px; border-radius: 10px; }
+        .btn { background: gold; color: black; padding: 20px; width: 80%; border: none; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
-
-    <div id="home-view">
-        <div style="text-align: center;">
-            <img src="https://i.postimg.cc/WzLhYFTb/Screenshot-2026-04-02-12-23-12-451-com-google-android-googlequicksearchbox-edit.jpg" class="logo-circle">
-            <h1 style="color: var(--gold); font-size: 3rem; margin-bottom: 30px;">Amir el kebda</h1>
-            <button class="btn-lemenu" onclick="document.getElementById('home-view').style.display='none'; document.getElementById('menu-view').style.display='block';">Le menu</button>
-        </div>
-    </div>
-
-    <div id="menu-view">
-        <h2 style="text-align: center; color: var(--gold); margin-bottom: 40px;">THE MENU</h2>
-        <div style="max-width: 600px; margin: 0 auto;">
-            <div class="cat-card" onclick="document.getElementById('orderModal').style.display='block'">ساندوتش كبدة</div>
-        </div>
-    </div>
-
-    <div id="orderModal">
-        <div class="form-box">
-            <h2 style="color: var(--gold); margin-bottom: 20px;">تأكيد الطلب 🥙</h2>
-            <form id="deliveryForm">
-                <input type="text" id="custName" placeholder="الاسم" required>
-                <input type="tel" id="custPhone" placeholder="رقم الهاتف" required>
-                <select id="custCity">
-                    <option>ديلي ابراهيم</option><option>الجزائر الوسطى</option><option>باب الواد</option><option>حيدرة</option>
-                </select>
-                <button type="button" class="gps-btn" onclick="getGPS()">تحديد موقعي GPS</button>
-                <button type="submit" class="submit-btn">إرسال الطلب 🍔</button>
-                <p style="margin-top: 15px; color: #666; cursor: pointer;" onclick="document.getElementById('orderModal').style.display='none'">إلغاء</p>
-            </form>
-        </div>
+    <h1>Amir el Kebda - المنيو</h1>
+    <div id="form">
+        <input type="text" id="name" placeholder="الاسم" required>
+        <input type="tel" id="phone" placeholder="الهاتف" required>
+        <select id="city"><option>ديلي ابراهيم</option><option>الجزائر الوسطى</option></select>
+        <button class="btn" onclick="sendOrder()">إرسال الطلب 🍔</button>
     </div>
 
     <script>
-        const firebaseConfig = {
+        const config = {
             apiKey: "AIzaSyA--0uPh05hIG_zN_Yc",
             authDomain: "amir-el-kebda.firebaseapp.com",
-            databaseURL: "https://amir-el-kebda-default-rtdb.firebaseio.com", 
-            projectId: "amir-el-kebda",
-            storageBucket: "amir-el-kebda.appspot.com",
-            messagingSenderId: "148680741165",
-            appId: "1:148680741165:web:9fb3b15afafbf114b583a4"
+            databaseURL: "https://amir-el-kebda-default-rtdb.firebaseio.com", // تأكد من هذا الرابط في حسابك
+            projectId: "amir-el-kebda"
         };
+        firebase.initializeApp(config);
 
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
+        function sendOrder() {
+            const n = document.getElementById('name').value;
+            const p = document.getElementById('phone').value;
+            const c = document.getElementById('city').value;
 
-        let userLoc = "غير محدد";
-        function getGPS() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(pos => {
-                    userLoc = `https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`;
-                    alert("✅ تم تحديد الموقع بنجاح!");
-                });
-            }
-        }
+            if(!n || !p) return alert("املا البيانات يا أمير!");
 
-        document.getElementById('deliveryForm').onsubmit = function(e) {
-            e.preventDefault();
-            const data = {
-                name: document.getElementById('custName').value,
-                phone: document.getElementById('custPhone').value,
-                city: document.getElementById('custCity').value,
-                item: "ساندوتش كبدة",
-                location: userLoc,
-                time: new Date().getTime()
-            };
-
-            database.ref('orders').push(data)
-            .then(() => {
-                alert("✅ تم إرسال طلبك بنجاح! جرس المطعم يرن الآن.");
-                document.getElementById('orderModal').style.display = 'none';
+            firebase.database().ref('orders').push({
+                name: n, phone: p, city: c, item: "ساندوتش كبدة", time: Date.now()
             })
-            .catch(err => alert("❌ فشل الإرسال! تأكد من الـ Rules: " + err.message));
-        };
+            .then(() => alert("✅ تم الإرسال بنجاح!"))
+            .catch(err => alert("❌ فشل: " + err.message));
+        }
     </script>
 </body>
 </html>
