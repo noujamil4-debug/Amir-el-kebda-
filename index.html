@@ -3,66 +3,206 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Amir el Kebda | Le Menu</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;600;900&family=Montserrat:wght@900&display=swap" rel="stylesheet">
+    <title>أمير الكبدة | Le Menu Officiel</title>
+    <!-- خطوط وأيقونات احترافية -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&family=Montserrat:wght@900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- فيربيز (Firebase) - سرفر أوروبا -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
     <style>
-        :root { --gold: #d4af37; --black: #0a0a0a; }
+        :root { --gold: #d4af37; --black: #0a0a0a; --dark-card: #161b22; --gps-blue: #4285F4; --red-chili: #ff4500; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background-color: var(--black); font-family: 'Cairo', sans-serif; color: white; overflow-x: hidden; }
-        #home-view { height: 100vh; width: 100%; display: flex; justify-content: center; align-items: center; position: relative; background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://i.postimg.cc/3RSC6ZW9/doner-tendir-du-poulet-table-140725-2443.jpg') center/cover; }
-        .logo { width: 130px; height: 130px; border-radius: 50%; border: 3px solid var(--gold); margin-bottom: 20px; box-shadow: 0 0 30px var(--gold); object-fit: cover; }
-        .btn-lemenu { background: none; border: 2px solid var(--gold); color: var(--gold); padding: 15px 60px; font-size: 1.4rem; border-radius: 100px; cursor: pointer; font-weight: 700; transition: 0.4s; }
-        #menu-view { display: none; padding: 40px 20px; min-height: 100vh; text-align: center; }
-        .cat-card { width: 100%; max-width: 400px; margin: 0 auto; aspect-ratio: 1/1; border-radius: 30px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1.6rem; cursor: pointer; border: 1px solid var(--gold); background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://i.postimg.cc/xdK9tsxZ/Adobe-Stock-495664482-jpeg-(1).webp') center/cover; }
-        #orderModal { display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 2000; padding: 20px; }
-        .form-box { max-width: 400px; margin: 20px auto; background: #000; padding: 25px; border-radius: 30px; border: 1px solid var(--gold); text-align: center; direction: rtl; }
-        input, select { width: 100%; padding: 15px; margin-bottom: 10px; border-radius: 12px; background: #111; color: white; border: 1px solid #333; font-family: 'Cairo'; }
-        .submit-btn { width: 100%; padding: 18px; background: var(--gold); color: black; border: none; border-radius: 50px; font-weight: 900; font-size: 1.4rem; cursor: pointer; }
+
+        /* --- الواجهة الرئيسية --- */
+        #home-view { height: 100vh; width: 100%; display: flex; justify-content: center; align-items: center; position: relative; background: linear-gradient(rgba(0,0,0,0.75), rgba(0,0,0,0.75)), url('https://i.postimg.cc/3RSC6ZW9/doner-tendir-du-poulet-table-140725-2443.jpg') center/cover; }
+        .logo { width: 140px; height: 140px; border-radius: 50%; border: 3px solid var(--gold); margin-bottom: 25px; box-shadow: 0 0 30px var(--gold); object-fit: cover; }
+        .restaurant-name { font-family: 'Montserrat', sans-serif; font-size: 3rem; color: var(--gold); font-weight: 900; margin-bottom: 40px; text-transform: uppercase; text-align: center; }
+        .btn-lemenu { background: none; border: 2px solid var(--gold); color: var(--gold); padding: 18px 70px; font-size: 1.6rem; border-radius: 100px; cursor: pointer; font-weight: 700; transition: 0.4s; }
+
+        /* --- واجهة المنيو --- */
+        #menu-view { display: none; padding: 40px 15px; background: #050505; min-height: 100vh; }
+        .section-title { color: var(--gold); font-size: 1.8rem; margin: 40px 0 20px; border-right: 5px solid var(--gold); padding-right: 15px; text-align: right; font-weight: 900; }
+        .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; max-width: 1100px; margin: 0 auto; }
+        .food-card { background: var(--dark-card); border-radius: 15px; overflow: hidden; border: 1px solid #333; cursor: pointer; transition: 0.3s; }
+        .food-img { width: 100%; aspect-ratio: 1/1; object-fit: cover; }
+        .food-info { padding: 10px; text-align: center; }
+        .food-price { color: var(--gold); font-weight: 900; }
+
+        .plat-list { max-width: 800px; margin: 0 auto; background: var(--dark-card); border-radius: 20px; padding: 10px; border: 1px solid #333; }
+        .plat-item { display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid #222; cursor: pointer; }
+        .plat-price { color: var(--gold); font-weight: 900; }
+
+        /* استمارة الطلب */
+        #orderModal { display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.98); z-index: 9999; padding: 20px; overflow-y: auto; }
+        .form-box { max-width: 420px; margin: 20px auto; background: #000; padding: 35px; border-radius: 40px; border: 1px solid var(--gold); text-align: center; direction: rtl; }
+        input, select { width: 100%; padding: 16px; margin-bottom: 15px; border-radius: 15px; background: #111; color: white; border: 1px solid #333; font-family: 'Cairo'; font-size: 1rem; }
+        
+        .harissa-toggle { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 15px; background: #222; color: #fff; border: 1px solid #444; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 10px; transition: 0.3s; }
+        .harissa-toggle.active { background: var(--red-chili); border-color: #fff; transform: scale(1.02); }
+
+        .gps-btn { width: 100%; padding: 15px; background: var(--gps-blue); color: white; border: none; border-radius: 15px; margin-bottom: 20px; cursor: pointer; font-weight: bold; }
+        .submit-btn { width: 100%; padding: 20px; background: var(--gold); color: black; border: none; border-radius: 50px; font-weight: 900; font-size: 1.6rem; cursor: pointer; }
+        .back-nav { display: flex; align-items: center; justify-content: space-between; max-width: 1100px; margin: 0 auto 30px; }
     </style>
 </head>
 <body>
+
     <div id="home-view">
-        <div style="text-align: center;">
-            <img src="https://i.postimg.cc/WzLhYFTb/Screenshot-2026-04-02-12-23-12-451-com-google-android-googlequicksearchbox-edit.jpg" class="logo">
-            <h1 style="color: var(--gold); font-size: 3rem; margin-bottom: 30px;">Amir el kebda</h1>
-            <button class="btn-lemenu" onclick="document.getElementById('home-view').style.display='none'; document.getElementById('menu-view').style.display='block';">Le menu</button>
+        <div class="content-wrap">
+            <center><img src="https://i.postimg.cc/WzLhYFTb/Screenshot-2026-04-02-12-23-12-451-com-google-android-googlequicksearchbox-edit.jpg" class="logo"></center>
+            <h1 class="restaurant-name">Amir el kebda</h1>
+            <center><button class="btn-lemenu" onclick="showMenu()">Le menu</button></center>
         </div>
     </div>
+
     <div id="menu-view">
-        <h2 style="color: var(--gold); margin-bottom: 40px;">THE MENU</h2>
-        <div class="cat-card" onclick="document.getElementById('orderModal').style.display='block'">ساندوتش كبدة</div>
+        <div class="back-nav">
+            <h2 style="color: var(--gold); font-family: 'Montserrat';">THE MENU</h2>
+            <i class="fas fa-arrow-left" onclick="location.reload()" style="font-size: 1.5rem; color: var(--gold); cursor: pointer;"></i>
+        </div>
+
+        <h3 class="section-title">Sandwiches</h3>
+        <div class="menu-grid">
+            <div class="food-card" onclick="openOrder('Kebda Veau', '650 DA', 'sandwich')">
+                <img src="https://i.postimg.cc/HnnD60B8/traditional-egyptian-food-alexandrian-liver-260nw-2486792147.jpg" class="food-img">
+                <div class="food-info"><span>Kebda Veau</span><br><span class="food-price">650 DA</span></div>
+            </div>
+            <div class="food-card" onclick="openOrder('Kebda Poulet', '350 DA', 'sandwich')">
+                <img src="https://i.postimg.cc/63HF42tC/alexandrian-liver-sandwich-egyptian-260nw-2341871359.jpg" class="food-img">
+                <div class="food-info"><span>Kebda Poulet</span><br><span class="food-price">350 DA</span></div>
+            </div>
+            <div class="food-card" onclick="openOrder('Kebda Agneau', '750 DA', 'sandwich')">
+                <img src="https://i.postimg.cc/YCRcByZ8/Adobe-Stock-495664482-jpeg-(1).webp" class="food-img">
+                <div class="food-info"><span>Kebda Agneau</span><br><span class="food-price">750 DA</span></div>
+            </div>
+            <div class="food-card" onclick="openOrder('Steak Haché', '350 DA', 'sandwich')">
+                <img src="https://i.postimg.cc/nrpYxT6k/philly-cheesesteak-sandwich-au-fromage-boeuf-poivrons-verts-oignons-caramelises-123827-22288.jpg" class="food-img">
+                <div class="food-info"><span>Steak Haché</span><br><span class="food-price">350 DA</span></div>
+            </div>
+            <div class="food-card" onclick="openOrder('Viande Hachée', '350 DA', 'sandwich')">
+                <img src="https://i.postimg.cc/Px3rf57R/sandwich-05.jpg" class="food-img">
+                <div class="food-info"><span>Viande Hachée</span><br><span class="food-price">350 DA</span></div>
+            </div>
+            <div class="food-card" onclick="openOrder('Merguez', '350 DA', 'sandwich')">
+                <img src="https://i.postimg.cc/FH4fB7XX/Merguez-Poulet-scaled.jpg" class="food-img">
+                <div class="food-info"><span>Merguez</span><br><span class="food-price">350 DA</span></div>
+            </div>
+        </div>
+
+        <h3 class="section-title">Plats</h3>
+        <div class="plat-list">
+            <div class="plat-item" onclick="openOrder('Plat Kebda Veau', '1000 DA', 'plat')"><span>Plat Kebda Veau</span><span class="plat-price">1000 DA</span></div>
+            <div class="plat-item" onclick="openOrder('Plat Kebda Poulet', '550 DA', 'plat')"><span>Plat Kebda Poulet</span><span class="plat-price">550 DA</span></div>
+            <div class="plat-item" onclick="openOrder('Plat Kebda Agneau', '1100 DA', 'plat')"><span>Plat Kebda Agneau</span><span class="plat-price">1100 DA</span></div>
+        </div>
+
+        <h3 class="section-title">Boissons</h3>
+        <div class="menu-grid">
+            <div class="food-card" onclick="openOrder('Boisson 0.5L', '70 DA', 'drink')">
+                <img src="https://i.postimg.cc/WpwxkypX/IMG-0326.png" class="food-img">
+                <div class="food-info"><span>Boisson Plastique</span><br><span class="food-price">70 DA</span></div>
+            </div>
+            <div class="food-card" onclick="openOrder('Canette', '100 DA', 'drink')">
+                <img src="https://i.postimg.cc/QtrnBQ2H/images-(1).jpg" class="food-img">
+                <div class="food-info"><span>Canette</span><br><span class="food-price">100 DA</span></div>
+            </div>
+            <div class="food-card" onclick="openOrder('L\'eau', '40 DA', 'drink')">
+                <img src="https://i.postimg.cc/tRkmTV27/images-(2).jpg" class="food-img">
+                <div class="food-info"><span>L'eau</span><br><span class="food-price">40 DA</span></div>
+            </div>
+        </div>
     </div>
+
     <div id="orderModal">
         <div class="form-box">
-            <h2 style="color: var(--gold); margin-bottom: 20px;">تأكيد الطلب 🥙</h2>
+            <h2 id="orderTitle" style="color: var(--gold); margin-bottom: 10px;">الوجبة</h2>
+            <h3 id="orderPrice" style="color: #666; margin-bottom: 25px;">Prix</h3>
             <form id="deliveryForm">
-                <input type="text" id="custName" placeholder="الاسم" required>
+                <input type="text" id="custName" placeholder="الاسم الكامل" required>
                 <input type="tel" id="custPhone" placeholder="رقم الهاتف" required>
-                <select id="custCity"><option>ديلي ابراهيم</option><option>الجزائر الوسطى</option><option>باب الواد</option></select>
-                <button type="submit" class="submit-btn">إرسال الطلب 🍔</button>
-                <p style="margin-top:15px; color:#666; cursor:pointer;" onclick="document.getElementById('orderModal').style.display='none'">إلغاء</p>
+                
+                <!-- تحديث قائمة المناطق في الجزائر العاصمة 🇩🇿 -->
+                <select id="custCity" required>
+                    <option value="" disabled selected>اختر منطقة التوصيل</option>
+                    <option>سيدي يحيا</option>
+                    <option>بئر مراد رايس</option>
+                    <option>دالي ابراهيم</option>
+                    <option>سعيد حمدين</option>
+                    <option>حيدرة</option>
+                    <option>الأبيار</option>
+                    <option>بن عكنون</option>
+                    <option>الشراقة</option>
+                </select>
+                
+                <div id="harissaSection">
+                    <button type="button" id="harissaBtn" class="harissa-toggle" onclick="toggleHarissa()">
+                        <i class="fas fa-pepper-hot"></i> اضف هريسة ؟
+                    </button>
+                </div>
+
+                <button type="button" class="gps-btn" onclick="getGPS()">تحديد موقعي GPS 📍</button>
+                <button type="submit" class="submit-btn" id="sendBtn">إرسال الطلب 🍔</button>
+                <p style="margin-top:20px; color:#666; cursor:pointer;" onclick="closeForm()">إلغاء</p>
             </form>
         </div>
     </div>
+
     <script>
-        const config = {
-            apiKey: "AIzaSyA--0uPh05hIG_zN_Yc",
-            authDomain: "amir-el-kebda.firebaseapp.com",
-            databaseURL: "https://amir-el-kebda-default-rtdb.europe-west1.firebasedatabase.app/",
-            projectId: "amir-el-kebda"
-        };
+        const config = { apiKey: "AIzaSyA--0uPh05hIG_zN_Yc", authDomain: "amir-el-kebda.firebaseapp.com", databaseURL: "https://amir-el-kebda-default-rtdb.europe-west1.firebasedatabase.app/", projectId: "amir-el-kebda" };
         firebase.initializeApp(config);
+        const db = firebase.database();
+
+        function showMenu() { document.getElementById('home-view').style.display='none'; document.getElementById('menu-view').style.display='block'; }
+        
+        let currentItem = "";
+        let userLoc = "غير محدد";
+        let wantsHarissa = false;
+
+        function toggleHarissa() {
+            wantsHarissa = !wantsHarissa;
+            const btn = document.getElementById('harissaBtn');
+            if(wantsHarissa) { btn.classList.add('active'); btn.innerHTML = '<i class="fas fa-pepper-hot"></i> هريسة مضافة ✓'; } 
+            else { btn.classList.remove('active'); btn.innerHTML = '<i class="fas fa-pepper-hot"></i> اضف هريسة ؟'; }
+        }
+
+        function openOrder(name, price, type) {
+            currentItem = name;
+            wantsHarissa = false;
+            document.getElementById('harissaBtn').classList.remove('active');
+            document.getElementById('harissaBtn').innerHTML = '<i class="fas fa-pepper-hot"></i> اضف هريسة ؟';
+            document.getElementById('harissaSection').style.display = (type === 'drink') ? 'none' : 'block';
+            document.getElementById('orderTitle').innerText = name;
+            document.getElementById('orderPrice').innerText = price;
+            document.getElementById('orderModal').style.display = 'block';
+        }
+
+        function closeForm() { document.getElementById('orderModal').style.display = 'none'; }
+
+        function getGPS() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(pos => {
+                    userLoc = `https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`;
+                    alert("✅ تم تحديد الموقع بنجاح!");
+                });
+            }
+        }
+
         document.getElementById('deliveryForm').onsubmit = function(e) {
             e.preventDefault();
-            const data = { name: document.getElementById('custName').value, phone: document.getElementById('custPhone').value, city: document.getElementById('custCity').value, item: "ساندوتش كبدة", time: Date.now() };
-            firebase.database().ref('orders').push(data).then(() => {
-                alert("✅ تم إرسال الطلب بنجاح!");
-                location.reload();
+            const btn = document.getElementById('sendBtn');
+            btn.innerText = "جاري الإرسال...";
+            let finalItem = currentItem + (wantsHarissa ? " + هريسة 🌶️" : "");
+            const data = { name: document.getElementById('custName').value, phone: document.getElementById('custPhone').value, city: document.getElementById('custCity').value, item: finalItem, location: userLoc, time: Date.now() };
+            db.ref('orders').push(data).then(() => {
+                alert("✅ تم إرسال طلبك بنجاح!");
+                closeForm();
+                btn.innerText = "إرسال الطلب 🍔";
             }).catch(err => alert("❌ فشل: " + err.message));
         };
     </script>
 </body>
-</html>
+    </html>
