@@ -3,111 +3,254 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>أمير الكبدة | التجربة الملكية</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <title>Amir el Kebda | Le Menu</title>
+    <!-- خطوط وأيقونات احترافية -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;600;900&family=Montserrat:wght@900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
     <style>
-        body { font-family: 'Cairo', sans-serif; background-color: #0f172a; color: white; }
-        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
-        .red-gradient { background: linear-gradient(90deg, #be123c 0%, #fb7185 100%); }
+        :root {
+            --main-gold: #c59d08;
+            --soft-black: #0a0a0a;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: var(--soft-black);
+            font-family: 'Cairo', sans-serif;
+            color: white;
+            overflow: hidden;
+        }
+
+        /* الطبقة الأولى: الخلفية الرئيسية */
+        #home-view {
+            height: 100vh;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            background-image: url('https://i.postimg.cc/3RSC6ZW9/doner-tendir-du-poulet-table-140725-2443.jpg');
+            background-size: cover;
+            background-position: center;
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* الطبقة الثانية: اللون الأسود الشفاف */
+        #home-view::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.75);
+            z-index: 1;
+        }
+
+        /* الطبقة الثالثة: المحتوى */
+        .content-wrap {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            animation: fadeIn 1.2s ease-out;
+        }
+
+        .brand-box {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            margin-bottom: 50px;
+        }
+
+        .logo-circle {
+            width: 140px; height: 140px;
+            border-radius: 50%;
+            border: 3px solid var(--main-gold);
+            padding: 5px;
+            box-shadow: 0 0 30px rgba(197, 157, 8, 0.4);
+            object-fit: cover;
+        }
+
+        .restaurant-name {
+            font-family: 'Montserrat', 'Cairo', sans-serif;
+            font-size: 3.5rem;
+            color: var(--main-gold);
+            font-weight: 900;
+            text-transform: uppercase;
+            text-shadow: 2px 2px 20px rgba(0,0,0,0.5);
+        }
+
+        .btn-modern {
+            background: none;
+            border: 2px solid var(--main-gold);
+            color: var(--main-gold);
+            padding: 18px 70px;
+            font-size: 1.6rem;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            border-radius: 100px;
+            cursor: pointer;
+            transition: 0.4s;
+            backdrop-filter: blur(5px);
+            text-transform: uppercase;
+        }
+
+        .btn-modern:hover {
+            background-color: var(--main-gold);
+            color: black;
+            box-shadow: 0 0 40px rgba(197, 157, 8, 0.5);
+            transform: translateY(-5px);
+        }
+
+        /* واجهة المنيو */
+        #menu-view {
+            display: none;
+            width: 100%;
+            height: 100vh;
+            background-color: var(--soft-black);
+            padding: 40px 20px;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease-out;
+            position: fixed;
+            top: 0; left: 0;
+            z-index: 100;
+            overflow-y: auto;
+        }
+
+        .back-arrow {
+            position: absolute;
+            top: 30px; right: 30px;
+            width: 55px; height: 55px;
+            border: 1px solid var(--main-gold);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--main-gold);
+            font-size: 1.3rem;
+            cursor: pointer;
+            transition: 0.3s;
+            background: rgba(255,255,255,0.05);
+        }
+
+        .back-arrow:hover {
+            background: var(--main-gold);
+            color: black;
+            transform: scale(1.1);
+        }
+
+        .menu-title {
+            text-align: center;
+            color: var(--main-gold);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2.5rem;
+            margin-top: 60px;
+            margin-bottom: 50px;
+            letter-spacing: 6px;
+        }
+
+        .category-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .cat-card {
+            aspect-ratio: 1/1;
+            border-radius: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 1.6rem;
+            cursor: pointer;
+            transition: 0.5s;
+            background-size: cover;
+            background-position: center;
+            border: 1px solid rgba(197, 157, 8, 0.2);
+            text-shadow: 2px 2px 15px rgba(0,0,0,1);
+            color: white;
+            text-decoration: none;
+        }
+
+        /* تعديل صورة SANDWICH بالرابط الجديد */
+        .cat-sandwich { 
+            background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), 
+            url('https://i.postimg.cc/xdK9tsxZ/Adobe-Stock-495664482-jpeg-(1).webp'); 
+        }
+
+        .cat-plat { 
+            background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), 
+            url('https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=500&q=80'); 
+        }
+
+        .cat-drinks { 
+            background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), 
+            url('https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=500&q=80'); 
+        }
+
+        .cat-card:hover { transform: translateY(-10px); border-color: var(--main-gold); }
+
+        .active-menu { display: block !important; opacity: 1 !important; transform: translateY(0) !important; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+
+        @media (max-width: 768px) {
+            .brand-box { flex-direction: column; gap: 15px; }
+            .restaurant-name { font-size: 2.5rem; }
+            .category-container { grid-template-columns: 1fr; }
+            .cat-card { aspect-ratio: 1.8/1; }
+        }
     </style>
 </head>
-<body class="pb-20">
+<body>
 
-    <!-- Navbar -->
-    <nav class="fixed top-0 w-full z-50 glass px-6 py-4 flex justify-between items-center">
-        <div class="text-2xl font-black italic text-rose-600">AMIR <span class="text-white">LKBDA</span></div>
-        <div class="bg-rose-600 px-3 py-1 rounded-full text-sm font-bold">🛒 <span id="cartCount">0</span></div>
-    </nav>
-
-    <!-- Hero -->
-    <section class="h-[60vh] flex items-center justify-center text-center px-4 pt-20">
-        <div class="relative z-10">
-            <h1 class="text-5xl font-black mb-4">ملك الكبدة <br><span class="text-rose-600">على أصولها</span></h1>
-            <p class="text-gray-400">أفضل مذاق في الجزائر العاصمة، اطلب الآن!</p>
-        </div>
-    </section>
-
-    <!-- Menu -->
-    <main class="max-w-2xl mx-auto px-6 space-y-4">
-        <div onclick="addToCart('ساندويتش كبدة ملكي', 450)" class="glass p-4 rounded-3xl flex justify-between items-center cursor-pointer hover:bg-white/10 transition">
-            <div>
-                <h3 class="font-bold text-lg">ساندويتش كبدة ملكي</h3>
-                <p class="text-rose-400 font-bold text-sm">450 دج</p>
+    <div id="home-view">
+        <div class="content-wrap">
+            <div class="brand-box">
+                <img src="https://i.postimg.cc/WzLhYFTb/Screenshot-2026-04-02-12-23-12-451-com-google-android-googlequicksearchbox-edit.jpg" alt="Logo" class="logo-circle">
+                <h1 class="restaurant-name">Amir el kebda</h1>
             </div>
-            <div class="bg-rose-600 p-2 rounded-full">+</div>
-        </div>
-        
-        <div onclick="addToCart('صحن مشكل أمير', 1200)" class="glass p-4 rounded-3xl flex justify-between items-center cursor-pointer hover:bg-white/10 transition">
-            <div>
-                <h3 class="font-bold text-lg">صحن مشكل أمير</h3>
-                <p class="text-rose-400 font-bold text-sm">1200 دج</p>
-            </div>
-            <div class="bg-rose-600 p-2 rounded-full">+</div>
-        </div>
-    </main>
-
-    <!-- Modal الطلب -->
-    <div id="orderModal" class="fixed inset-0 bg-black/80 hidden z-50 flex items-center justify-center p-4">
-        <div class="bg-slate-900 w-full max-w-md rounded-[2.5rem] p-8 border border-white/10">
-            <h3 class="text-2xl font-bold mb-6 text-center">تأكيد الطلبية 🥩</h3>
-            <div id="itemsSummary" class="text-sm text-gray-400 mb-6 text-center"></div>
-            
-            <input id="cName" type="text" placeholder="اسمك الكامل" class="w-full bg-white/5 border border-white/10 p-4 rounded-2xl mb-3 outline-none focus:border-rose-600">
-            <input id="cPhone" type="tel" placeholder="رقم هاتفك" class="w-full bg-white/5 border border-white/10 p-4 rounded-2xl mb-6 outline-none focus:border-rose-600">
-            
-            <button onclick="sendToFirebase()" id="sendBtn" class="w-full red-gradient py-4 rounded-2xl font-black text-lg shadow-xl shadow-rose-600/30">إرسال الطلب الآن</button>
-            <button onclick="document.getElementById('orderModal').classList.add('hidden')" class="w-full mt-4 text-gray-500 text-sm">إلغاء</button>
+            <button class="btn-modern" onclick="openMenu()">Le menu</button>
         </div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-app.js";
-        import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-database.js";
+    <div id="menu-view">
+        <div class="back-arrow" onclick="goBack()">
+            <i class="fas fa-arrow-right"></i>
+        </div>
+        <h2 class="menu-title">THE MENU</h2>
+        <div class="category-container">
+            <div class="cat-card cat-sandwich">SANDWICH</div>
+            <div class="cat-card cat-plat">PLAT</div>
+            <div class="cat-card cat-drinks">DRINKS</div>
+        </div>
+    </div>
 
-        // معلوماتك كاملة ومريكلة 100%
-        const firebaseConfig = {
-            apiKey: "AIzaSyA--0uPh05hIg1Xe633AZLY-gO0",
-            authDomain: "amir-el-kebda.firebaseapp.com",
-            projectId: "amir-el-kebda",
-            storageBucket: "amir-el-kebda.appspot.com",
-            messagingSenderId: "148680741165",
-            appId: "1:148680741165:web:9fb3b15afafbf114b583a4",
-            databaseURL: "https://amir-el-kebda-default-rtdb.europe-west1.firebasedatabase.app"
-        };
+    <script>
+        function openMenu() {
+            const home = document.getElementById('home-view');
+            const menu = document.getElementById('menu-view');
+            home.style.opacity = '0';
+            setTimeout(() => {
+                menu.classList.add('active-menu');
+            }, 400);
+        }
 
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-
-        let cart = [];
-
-        window.addToCart = (name, price) => {
-            cart.push({name, price});
-            document.getElementById('cartCount').innerText = cart.length;
-            document.getElementById('orderModal').classList.remove('hidden');
-            document.getElementById('itemsSummary').innerText = "طلبت: " + cart.map(i => i.name).join(' + ');
-        };
-
-        window.sendToFirebase = () => {
-            const name = document.getElementById('cName').value;
-            const phone = document.getElementById('cPhone').value;
-            if(!name || !phone) { alert("أدخل معلوماتك!"); return; }
-
-            const btn = document.getElementById('sendBtn');
-            btn.disabled = true; btn.innerText = "جاري الإرسال...";
-
-            const ordersRef = ref(db, 'orders');
-            push(ordersRef, {
-                customer: name,
-                phone: phone,
-                items: cart.map(i => i.name),
-                time: new Date().toLocaleTimeString(),
-                status: "new"
-            }).then(() => {
-                alert("تم استلام طلبك يا أمير الكبدة!");
-                location.reload();
-            });
-        };
+        function goBack() {
+            const menu = document.getElementById('menu-view');
+            const home = document.getElementById('home-view');
+            menu.style.opacity = '0';
+            setTimeout(() => {
+                menu.classList.remove('active-menu');
+                home.style.opacity = '1';
+            }, 400);
+        }
     </script>
 </body>
 </html>
