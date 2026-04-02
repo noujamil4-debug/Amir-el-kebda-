@@ -4,40 +4,135 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>لوحة التحكم | AMIR STAFF</title>
+    <!-- خطوط وأيقونات احترافية -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
+    <!-- روابط فيربيز (Firebase) للربط السحابي -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
     <style>
-        body { background-color: #0f1218; color: white; font-family: 'Cairo', sans-serif; margin: 0; }
-        header { background: #161b22; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #ffcc00; }
-        .bell-btn { background: #ffcc00; color: black; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 900; cursor: pointer; }
-        .bell-btn.active { background: #444; color: #aaa; }
-        .dashboard { padding: 30px 5%; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
-        .order-card { background: #1a1e26; border-radius: 15px; padding: 20px; border-right: 8px solid #ffcc00; }
-        .order-card h3 { color: #ffcc00; margin: 0 0 10px 0; }
-        .btn-done { width: 100%; background: #ffcc00; border: none; padding: 10px; border-radius: 5px; font-weight: bold; cursor: pointer; margin-top: 15px; }
-        .loc-link { color: #4285F4; text-decoration: none; display: block; margin-top: 10px; }
+        :root {
+            --bg-black: #0f1218;
+            --primary-yellow: #d4af37;
+            --card-bg: #1a1e26;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
+        
+        body { background-color: var(--bg-black); color: white; min-height: 100vh; }
+
+        header {
+            background-color: #161b22;
+            padding: 15px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--primary-yellow);
+            position: sticky;
+            top: 0; z-index: 1000;
+        }
+
+        /* زر الجرس المطلوب للتفعيل */
+        .bell-btn {
+            background-color: var(--primary-yellow);
+            color: black;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 8px;
+            font-weight: 900;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .bell-btn.active { background-color: #444; color: #aaa; cursor: default; }
+
+        .header-right { color: #f85149; font-weight: 900; font-size: 1.2rem; }
+
+        .dashboard-container { padding: 30px 5%; }
+
+        .orders-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
+        }
+
+        /* بطاقة الطلب الاحترافية */
+        .order-card {
+            background-color: var(--card-bg);
+            border-radius: 20px;
+            padding: 20px;
+            border-right: 8px solid var(--primary-yellow);
+            animation: slideIn 0.5s ease-out;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .order-card h3 { color: var(--primary-yellow); margin-bottom: 15px; font-size: 1.4rem; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        .order-card p { margin: 8px 0; font-size: 1rem; color: #ccc; }
+        .order-card b { color: white; }
+
+        .loc-link {
+            display: inline-block;
+            margin-top: 15px;
+            color: #4285F4;
+            text-decoration: none;
+            font-weight: bold;
+            border: 1px solid #4285F4;
+            padding: 8px 15px;
+            border-radius: 8px;
+            transition: 0.3s;
+        }
+
+        .loc-link:hover { background: #4285F4; color: white; }
+
+        .btn-done {
+            background-color: var(--primary-yellow);
+            color: black;
+            border: none;
+            padding: 12px;
+            width: 100%;
+            border-radius: 10px;
+            font-weight: 900;
+            margin-top: 20px;
+            cursor: pointer;
+            font-size: 1.1rem;
+        }
+
+        .empty-msg { text-align: center; color: #444; margin-top: 100px; font-size: 1.2rem; width: 100%; }
     </style>
 </head>
 <body>
 
+    <!-- صوت جرس المطبخ -->
     <audio id="orderSound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
 
     <header>
-        <button id="activateBtn" class="bell-btn" onclick="enableAudio()"><i class="fas fa-bell"></i> اضغط لتفعيل الجرس</button>
-        <div style="color: #f85149; font-weight: 900;">AMIR STAFF</div>
+        <button id="activateBtn" class="bell-btn" onclick="enableAudio()">
+            <i class="fas fa-bell"></i> تفعيل الجرس التلقائي
+        </button>
+        <div class="header-right">AMIR STAFF</div>
     </header>
 
-    <div class="dashboard" id="ordersList">
-        <p id="emptyMsg" style="text-align: center; width: 100%; color: #444; margin-top: 50px;">في انتظار الطلبات الجديدة...</p>
+    <div class="dashboard-container">
+        <h2 style="margin-bottom: 25px; color: var(--primary-yellow);">الطلبات الواردة (Live)</h2>
+        <div id="ordersList" class="orders-grid">
+            <p id="emptyMsg" class="empty-msg">في انتظار الطلبات الجديدة من الزبائن...</p>
+        </div>
     </div>
 
     <script>
+        // --- إعدادات فيربيز الخاصة بك ---
         const firebaseConfig = {
-            apiKey: "AIzaSyA--0uPh05hI9z...", 
+            apiKey: "AIzaSyA--0uPh05hIG_zN_Yc",
             authDomain: "amir-el-kebda.firebaseapp.com",
             projectId: "amir-el-kebda",
             storageBucket: "amir-el-kebda.appspot.com",
@@ -47,33 +142,44 @@
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
-        function enableAudio() {
-            document.getElementById('orderSound').play().then(() => {
-                document.getElementById('orderSound').pause();
-                document.getElementById('activateBtn').innerText = "الجرس يعمل تلقائياً ✓";
+        // وظيفة تفعيل نظام الصوت (يجب ضغطها مرة واحدة عند فتح الصفحة)
+        window.enableAudio = function() {
+            const sound = document.getElementById('orderSound');
+            sound.play().then(() => {
+                sound.pause(); 
+                document.getElementById('activateBtn').innerHTML = "<i class='fas fa-check'></i> الجرس يعمل تلقائياً";
                 document.getElementById('activateBtn').classList.add('active');
-            });
+                document.getElementById('activateBtn').onclick = null;
+                alert("تم التفعيل! الجرس سيرن لوحده فور وصول أي طلب.");
+            }).catch(e => alert("يرجى الضغط مرة أخرى للسماح بالصوت."));
         }
 
+        // الاستماع الفوري لقاعدة البيانات
         database.ref('orders').on('child_added', (snapshot) => {
             const data = snapshot.val();
-            if(document.getElementById('emptyMsg')) document.getElementById('emptyMsg').remove();
             
-            // رن الجرس
+            // إخفاء رسالة الانتظار
+            if(document.getElementById('emptyMsg')) document.getElementById('emptyMsg').remove();
+
+            // رن الجرس تلقائياً
             document.getElementById('orderSound').play();
 
+            // إضافة الطلب للشاشة
+            const list = document.getElementById('ordersList');
             const card = document.createElement('div');
             card.className = 'order-card';
             card.innerHTML = `
-                <h3>طلب جديد</h3>
+                <h3>طلب جديد 🥙</h3>
                 <p><b>الزبون:</b> ${data.name}</p>
                 <p><b>الهاتف:</b> ${data.phone}</p>
                 <p><b>البلدية:</b> ${data.city}</p>
-                <a href="${data.location}" target="_blank" class="loc-link">📍 فتح الموقع في الخريطة</a>
+                <p><b>الطلب:</b> ${data.item}</p>
+                <a href="${data.location}" target="_blank" class="loc-link">📍 فتح موقع الزبون (GPS)</a>
                 <button class="btn-done" onclick="this.parentElement.remove()">تم التجهيز ✓</button>
             `;
-            document.getElementById('ordersList').prepend(card);
+            list.prepend(card); // إضافة الطلب الجديد في الأعلى
         });
     </script>
+
 </body>
 </html>
