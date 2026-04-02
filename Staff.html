@@ -8,100 +8,97 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700&display=swap" rel="stylesheet">
     <style>
-        body { background: #0f1218; color: white; font-family: 'Cairo', sans-serif; padding: 10px; margin: 0; }
-        header { background: #161b22; padding: 15px; border-bottom: 2px solid #d4af37; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; }
-        .btn-bell { background: #d4af37; color: black; padding: 8px 15px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px; }
-        #list { margin-top: 15px; }
-        .card { background: #1a1e26; border-radius: 12px; padding: 15px; margin-bottom: 15px; border-right: 6px solid #d4af37; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-        .order-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-        .order-title { font-size: 1.3rem; color: #fff; font-weight: bold; }
-        .harissa-tag { background: #f85149; color: white; padding: 2px 10px; border-radius: 5px; font-size: 1rem; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
-        .details { color: #8b949e; font-size: 0.9rem; line-height: 1.6; border-top: 1px solid #333; padding-top: 10px; }
-        .btn-done { width: 100%; margin-top: 15px; background: #238636; color: white; border: none; padding: 12px; cursor: pointer; font-weight: bold; border-radius: 8px; }
-        .no-orders { text-align: center; padding: 50px; color: #555; }
+        body { background: #0a0a0a; color: white; font-family: 'Cairo', sans-serif; padding: 15px; margin: 0; }
+        header { background: #161b22; padding: 15px; border-bottom: 2px solid #d4af37; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; border-radius: 0 0 15px 15px; }
+        .btn-bell { background: #d4af37; color: black; padding: 10px 20px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        
+        #list { margin-top: 20px; }
+        .card { background: #161b22; border-radius: 20px; padding: 20px; margin-bottom: 20px; border: 1px solid #333; border-right: 8px solid #d4af37; position: relative; }
+        
+        /* تنسيق اسم الطلب */
+        .order-title { font-size: 1.6rem; color: #fff; font-weight: 900; margin-bottom: 10px; display: block; }
+        
+        /* تنسيق الهريسة المميز */
+        .harissa-highlight { color: #ff4500; background: rgba(255, 69, 0, 0.1); padding: 2px 10px; border-radius: 8px; border: 1px solid #ff4500; font-size: 1.2rem; animation: blink 1s infinite; margin-right: 10px; }
+        @keyframes blink { 50% { opacity: 0.4; } }
+
+        .info { color: #8b949e; font-size: 1rem; margin-top: 10px; line-height: 1.8; }
+        .info b { color: #d4af37; }
+
+        .gps-link { display: inline-block; margin-top: 10px; color: #4285F4; text-decoration: none; font-weight: bold; }
+
+        .btn-done { width: 100%; margin-top: 20px; background: #238636; color: white; border: none; padding: 15px; cursor: pointer; font-weight: bold; border-radius: 12px; font-size: 1.1rem; }
     </style>
 </head>
 <body>
 
-<audio id="bell" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
+    <audio id="bell" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
 
-<header>
-    <button class="btn-bell" onclick="startBell()">تفعيل الجرس 🔔</button>
-    <h2 style="color:#f85149; margin:0; font-size: 18px;">AMIR STAFF</h2>
-</header>
+    <header>
+        <button class="btn-bell" onclick="document.getElementById('bell').play().then(()=>document.getElementById('bell').pause())">تفعيل الجرس 🔔</button>
+        <h2 style="color:#f85149; margin:0;">AMIR STAFF</h2>
+    </header>
 
-<div id="list">
-    <div class="no-orders">جاري انتظار الطلبات...</div>
-</div>
+    <div id="list">
+        <center style="margin-top: 50px; color: #444;">جاري انتظار الطلبات الجديدة...</center>
+    </div>
 
-<script>
-    const config = {
-        apiKey: "AIzaSyA--0uPh05hIG_zN_Yc",
-        databaseURL: "https://amir-el-kebda-default-rtdb.europe-west1.firebasedatabase.app/",
-        projectId: "amir-el-kebda"
-    };
-    firebase.initializeApp(config);
-    const db = firebase.database();
+    <script>
+        const config = {
+            apiKey: "AIzaSyA--0uPh05hIG_zN_Yc",
+            databaseURL: "https://amir-el-kebda-default-rtdb.europe-west1.firebasedatabase.app/",
+            projectId: "amir-el-kebda"
+        };
+        firebase.initializeApp(config);
+        const db = firebase.database();
 
-    function startBell() {
-        const audio = document.getElementById('bell');
-        audio.play().then(() => audio.pause());
-        alert("الجرس مفعل الآن! ستسمع صوتاً عند كل طلب جديد.");
-    }
+        // الاستماع للطلبات
+        db.ref('orders').on('value', (snapshot) => {
+            const listDiv = document.getElementById('list');
+            listDiv.innerHTML = ""; 
 
-    // جلب البيانات (استخدام value لعرض كل شيء فوراً)
-    db.ref('orders').on('value', (snapshot) => {
-        const listDiv = document.getElementById('list');
-        listDiv.innerHTML = ""; // مسح القائمة الحالية لإعادة البناء
+            if (!snapshot.exists()) {
+                listDiv.innerHTML = "<center style='margin-top:50px;'>لا توجد طلبات حالياً</center>";
+                return;
+            }
 
-        if (!snapshot.exists()) {
-            listDiv.innerHTML = '<div class="no-orders">لا توجد طلبات حالياً</div>';
-            return;
-        }
+            snapshot.forEach((child) => {
+                const d = child.val();
+                const id = child.key;
 
-        const orders = [];
-        snapshot.forEach(child => {
-            orders.push({ id: child.key, ...child.val() });
+                // معالجة النص لعزل "الهريسة" وتلوينها
+                let displayItem = d.item || "طلب غير معروف";
+                if (displayItem.includes("هريسة")) {
+                    displayItem = displayItem.replace(" + هريسة 🌶️", "") + ' <span class="harissa-highlight">🌶️ مع هريسة</span>';
+                }
+
+                const card = `
+                <div class="card" id="card-${id}">
+                    <span class="order-title">${displayItem}</span>
+                    
+                    <div class="info">
+                        👤 الزبون: <b>${d.name}</b><br>
+                        📱 الهاتف: <b>${d.phone}</b><br>
+                        📍 المنطقة: <b>${d.city}</b><br>
+                        ${d.location !== "غير محدد" ? `<a href="${d.location}" target="_blank" class="gps-link">📍 فتح الموقع على الخريطة</a>` : ""}
+                    </div>
+
+                    <button class="btn-done" onclick="completeOrder('${id}')">تم التجهيز ✓</button>
+                </div>`;
+
+                listDiv.insertAdjacentHTML('afterbegin', card);
+            });
+
+            // تنبيه صوتي عند حدوث أي تغيير (طلب جديد)
+            document.getElementById('bell').play().catch(()=>{});
         });
 
-        // ترتيب: الأحدث في الأعلى
-        orders.reverse().forEach(d => {
-            // محاولة العثور على اسم الطلب في عدة حقول ممكنة
-            const foodName = d.order || d.food || d.itemName || d.title || "طلب بدون اسم";
-            
-            // محاولة العثور على "هريسة" في أي نص داخل الطلب
-            const allText = JSON.stringify(d).toLowerCase();
-            const hasHarissa = allText.includes("هريسة") ? `<span class="harissa-tag">🌶️ + هريسة</span>` : "";
-
-            const cardHtml = `
-                <div class="card" id="order-${d.id}">
-                    <div class="order-header">
-                        <span class="order-title">${foodName}</span>
-                        ${hasHarissa}
-                    </div>
-                    <div class="details">
-                        <div>👤 الزبون: ${d.name || 'غير معروف'}</div>
-                        <div>📱 الهاتف: ${d.phone || 'بدون رقم'}</div>
-                        <div>📍 المنطقة: ${d.city || d.address || 'غير محدد'}</div>
-                        ${d.notes ? `<div style="color:#d4af37">📝 ملاحظة: ${d.notes}</div>` : ''}
-                    </div>
-                    <button class="btn-done" onclick="removeOrder('${d.id}')">تم التجهيز ✓</button>
-                </div>
-            `;
-            listDiv.insertAdjacentHTML('beforeend', cardHtml);
-        });
-
-        // تشغيل صوت التنبيه عند تغير البيانات (إضافة طلب جديد)
-        document.getElementById('bell').play().catch(() => {});
-    });
-
-    function removeOrder(id) {
-        if (confirm("هل تريد مسح الطلب من القائمة؟")) {
-            db.ref('orders/' + id).remove();
+        function completeOrder(id) {
+            if(confirm("هل تم تجهيز هذا الطلب؟")) {
+                db.ref('orders/' + id).remove();
+            }
         }
-    }
-</script>
+    </script>
 
 </body>
 </html>
